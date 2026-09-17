@@ -2,114 +2,78 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
 
 jobs:
-  create-release:
+  release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Generate changelog
-      id: changelog
-      run: |
-        # Get the previous tag
-        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
-        
-        if [ -z "$PREVIOUS_TAG" ]; then
-          # If no previous tag, get all commits
-          CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
-        else
-          # Get commits since previous tag
-          CHANGELOG=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
-        fi
-        
-        # Save changelog to file
-        echo "$CHANGELOG" > CHANGELOG.txt
-        
-        # Set output for GitHub release
-        echo "changelog<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        
-    - name: Create Release
-      uses: softprops/action-gh-release@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          ## Changes in this Release
-          
-          ${{ steps.changelog.outputs.changelog }}
-          
-          ## Docker Image
-          
-          - Backend: `ghcr.io/${{ github.repository }}/backend:${{ github.ref_name }}`
-          
-          ## Deployment
-          
-          ```bash
-          # Using Docker Compose
-          docker-compose up -d
-          
-          # Using Kubernetes
-          ./devops/scripts/deploy.sh production ${{ github.ref_name }}
-          
-          # Using Helm
-          helm upgrade bank-app devops/helm/ --set image.tag=${{ github.ref_name }}
-          ```
-          
-          ## Security Notes
-          
-          - All dependencies have been updated to latest secure versions
-          - Security scan passed with no critical vulnerabilities
-          - This release includes security patches if any were identified
-          
-        draft: false
-        prerelease: false
-        
-  build-and-push-images:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: simple
+
+  build-and-publish:
     runs-on: ubuntu-latest
-    needs: create-release
-    permissions:
-      contents: read
-      packages: write
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+          
+      - name: Restore dependencies
+        run: dotnet restore src/Bank.sln
         
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ghcr.io/${{ github.repository }}/backend
-        tags: |
-          type=ref,event=tag
-          type=raw,value=latest
-    
-    - name: Build and push backend image
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - name: Build and Publish Binaries
+        run: |
+          dotnet publish src/Bank.Api/Bank.Api.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-x64
+          cd ./publish/linux-x64
+          tar -czvf ../../bank-api-linux-x64.tar.gz *
+          cd ../..
+          
+      - name: Upload Release Artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} bank-api-linux-x64.tar.gz
+        
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/backend
+          tags: |
+            type=raw,value=${{ needs.release-please.outputs.tag_name }}
+            type=raw,value=latest
+            
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
