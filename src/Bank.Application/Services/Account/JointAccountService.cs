@@ -42,14 +42,14 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for joint holder addition", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for joint holder addition", MaskGuid(accountId));
                 return false;
             }
 
             // Check if user is already a joint holder
             if (_jointAccountPolicy.HasJointHolder(account, userId) || account.UserId == userId)
             {
-                _logger.LogWarning("User {UserId} is already associated with account {AccountId}", userId, accountId);
+                _logger.LogWarning("User {MaskedUserId} is already associated with account {MaskedAccountId}", MaskGuid(userId), MaskGuid(accountId));
                 return false;
             }
 
@@ -85,14 +85,14 @@ public class JointAccountService : IJointAccountService
 
             await _auditLogService.LogAsync("Joint Holder Added", 
                 $"User {userId} added as {role} to account {accountId}", addedByUserId);
-            _logger.LogInformation("Joint holder {UserId} added to account {AccountId} with role {Role}", 
-                userId, accountId, role);
+            _logger.LogInformation("Joint holder {MaskedUserId} added to account {MaskedAccountId} with role {Role}", 
+                MaskGuid(userId), MaskGuid(accountId), role);
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error adding joint holder to account {AccountId}", accountId);
+            _logger.LogError(ex, "Error adding joint holder to account {MaskedAccountId}", MaskGuid(accountId));
             return false;
         }
     }
@@ -104,14 +104,14 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for joint holder removal", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for joint holder removal", MaskGuid(accountId));
                 return false;
             }
 
             var jointHolder = account.JointHolders.FirstOrDefault(jh => jh.UserId == userId && jh.IsActive);
             if (jointHolder == null)
             {
-                _logger.LogWarning("Active joint holder {UserId} not found for account {AccountId}", userId, accountId);
+                _logger.LogWarning("Active joint holder {MaskedUserId} not found for account {MaskedAccountId}", MaskGuid(userId), MaskGuid(accountId));
                 return false;
             }
 
@@ -131,13 +131,13 @@ public class JointAccountService : IJointAccountService
 
             await _auditLogService.LogAsync("Joint Holder Removed", 
                 $"User {userId} removed from account {accountId}", removedByUserId);
-            _logger.LogInformation("Joint holder {UserId} removed from account {AccountId}", userId, accountId);
+            _logger.LogInformation("Joint holder {MaskedUserId} removed from account {MaskedAccountId}", MaskGuid(userId), MaskGuid(accountId));
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error removing joint holder from account {AccountId}", accountId);
+            _logger.LogError(ex, "Error removing joint holder from account {MaskedAccountId}", MaskGuid(accountId));
             return false;
         }
     }
@@ -150,14 +150,14 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for joint holder role update", maskedAccountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for joint holder role update", maskedAccountId);
                 return false;
             }
 
             var jointHolder = account.JointHolders.FirstOrDefault(jh => jh.UserId == userId && jh.IsActive);
             if (jointHolder == null)
             {
-                _logger.LogWarning("Active joint holder {UserId} not found for account {AccountId}", userId, maskedAccountId);
+                _logger.LogWarning("Active joint holder {MaskedUserId} not found for account {MaskedAccountId}", MaskGuid(userId), maskedAccountId);
                 return false;
             }
 
@@ -191,14 +191,14 @@ public class JointAccountService : IJointAccountService
 
             await _auditLogService.LogAsync("Joint Holder Role Updated", 
                 $"User {userId} role updated from {oldRole} to {newRole} for account {maskedAccountId}", updatedByUserId);
-            _logger.LogInformation("Joint holder {UserId} role updated from {OldRole} to {NewRole} for account {AccountId}", 
-                userId, oldRole, newRole, maskedAccountId);
+            _logger.LogInformation("Joint holder {MaskedUserId} role updated from {OldRole} to {NewRole} for account {MaskedAccountId}", 
+                MaskGuid(userId), oldRole, newRole, maskedAccountId);
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating joint holder role for account {AccountId}", maskedAccountId);
+            _logger.LogError(ex, "Error updating joint holder role for account {MaskedAccountId}", maskedAccountId);
             return false;
         }
     }
@@ -210,7 +210,7 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found", MaskGuid(accountId));
                 return new List<JointAccountHolder>();
             }
 
@@ -218,7 +218,7 @@ public class JointAccountService : IJointAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving joint holders for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error retrieving joint holders for account {MaskedAccountId}", MaskGuid(accountId));
             return new List<JointAccountHolder>();
         }
     }
@@ -248,7 +248,7 @@ public class JointAccountService : IJointAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking transaction permission for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error checking transaction permission for account {MaskedAccountId}", MaskGuid(accountId));
             return false;
         }
     }
@@ -264,7 +264,7 @@ public class JointAccountService : IJointAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking multiple signature requirement for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error checking multiple signature requirement for account {MaskedAccountId}", MaskGuid(accountId));
             return false;
         }
     }
@@ -294,13 +294,13 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for joint account conversion", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for joint account conversion", MaskGuid(accountId));
                 return false;
             }
 
             if (account.IsJointAccount)
             {
-                _logger.LogWarning("Account {AccountId} is already a joint account", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} is already a joint account", MaskGuid(accountId));
                 return false;
             }
 
@@ -313,13 +313,13 @@ public class JointAccountService : IJointAccountService
 
             await _auditLogService.LogAsync("Account Converted to Joint", 
                 $"Account {accountId} converted to joint account", convertedByUserId);
-            _logger.LogInformation("Account {AccountId} converted to joint account", accountId);
+            _logger.LogInformation("Account {MaskedAccountId} converted to joint account", MaskGuid(accountId));
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error converting account {AccountId} to joint account", accountId);
+            _logger.LogError(ex, "Error converting account {MaskedAccountId} to joint account", MaskGuid(accountId));
             return false;
         }
     }
@@ -331,13 +331,13 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for single account conversion", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for single account conversion", MaskGuid(accountId));
                 return false;
             }
 
             if (!account.IsJointAccount)
             {
-                _logger.LogWarning("Account {AccountId} is not a joint account", accountId);
+                _logger.LogWarning("Account {MaskedAccountId} is not a joint account", MaskGuid(accountId));
                 return false;
             }
 
@@ -366,13 +366,13 @@ public class JointAccountService : IJointAccountService
 
             await _auditLogService.LogAsync("Account Converted to Single", 
                 $"Account {accountId} converted to single holder account", convertedByUserId);
-            _logger.LogInformation("Account {AccountId} converted to single holder account", accountId);
+            _logger.LogInformation("Account {MaskedAccountId} converted to single holder account", MaskGuid(accountId));
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error converting account {AccountId} to single account", accountId);
+            _logger.LogError(ex, "Error converting account {MaskedAccountId} to single account", MaskGuid(accountId));
             return false;
         }
     }

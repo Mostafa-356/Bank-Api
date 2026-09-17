@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
@@ -36,7 +36,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating maintenance fee for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating maintenance fee for account {MaskedAccountId}", SecureLoggingService.MaskGuid(account.Id));
             return 0;
         }
     }
@@ -61,7 +61,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating overdraft fee for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating overdraft fee for account {MaskedAccountId}", SecureLoggingService.MaskGuid(account.Id));
             return 0;
         }
     }
@@ -88,7 +88,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating inactivity fee for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating inactivity fee for account {MaskedAccountId}", SecureLoggingService.MaskGuid(account.Id));
             return 0;
         }
     }
@@ -120,7 +120,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating early closure fee for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating early closure fee for account {MaskedAccountId}", SecureLoggingService.MaskGuid(account.Id));
             return 0;
         }
     }
@@ -148,7 +148,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating minimum balance fee for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating minimum balance fee for account {MaskedAccountId}", SecureLoggingService.MaskGuid(account.Id));
             return 0;
         }
     }
@@ -183,7 +183,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting pending fees for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error getting pending fees for account {MaskedAccountId}", SecureLoggingService.MaskGuid(accountId));
             return new List<AccountFee>();
         }
     }
@@ -246,7 +246,7 @@ public class FeeCalculationService : IFeeCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating total fees for account {AccountId}", accountId);
+            _logger.LogError(ex, "Error calculating total fees for account {MaskedAccountId}", SecureLoggingService.MaskGuid(accountId));
             return 0;
         }
     }

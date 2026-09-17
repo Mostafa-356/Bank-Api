@@ -42,7 +42,7 @@ public class InterestCalculationService : IInterestCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating simple interest for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating simple interest for account {MaskedAccountId}", MaskGuid(account.Id));
             return 0;
         }
     }
@@ -70,7 +70,7 @@ public class InterestCalculationService : IInterestCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating compound interest for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating compound interest for account {MaskedAccountId}", MaskGuid(account.Id));
             return 0;
         }
     }
@@ -90,7 +90,7 @@ public class InterestCalculationService : IInterestCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating daily interest for account {AccountId}", account.Id);
+            _logger.LogError(ex, "Error calculating daily interest for account {MaskedAccountId}", MaskGuid(account.Id));
             return 0;
         }
     }
@@ -108,7 +108,7 @@ public class InterestCalculationService : IInterestCalculationService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for interest application", MaskGuid(accountId));
+                _logger.LogWarning("Account {MaskedAccountId} not found for interest application", MaskGuid(accountId));
                 return false;
             }
 
@@ -116,7 +116,7 @@ public class InterestCalculationService : IInterestCalculationService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error applying interest to account {AccountId}", MaskGuid(accountId));
+            _logger.LogError(ex, "Error applying interest to account {MaskedAccountId}", MaskGuid(accountId));
             return false;
         }
     }
@@ -129,7 +129,7 @@ public class InterestCalculationService : IInterestCalculationService
     {
         if (account.Status != AccountStatus.Active && account.Status != AccountStatus.Dormant)
         {
-            _logger.LogWarning("Account {AccountId} is not eligible for interest calculation", account.Id);
+            _logger.LogWarning("Account {MaskedAccountId} is not eligible for interest calculation", MaskGuid(account.Id));
             return false;
         }
 
@@ -174,7 +174,7 @@ public class InterestCalculationService : IInterestCalculationService
                 userId);
 
             _logger.LogInformation(
-                "Interest of {Interest:C} applied to account {AccountId}", interest, account.Id);
+                "Interest of {Interest:C} applied to account {MaskedAccountId}", interest, MaskGuid(account.Id));
         }
 
         return true;
@@ -277,13 +277,13 @@ public class InterestCalculationService : IInterestCalculationService
             var maskedAccountId = SecureLoggingService.MaskGuid(accountId);
             if (account == null)
             {
-                _logger.LogWarning("Account {AccountId} not found for interest rate update", maskedAccountId);
+                _logger.LogWarning("Account {MaskedAccountId} not found for interest rate update", maskedAccountId);
                 return false;
             }
 
             if (newRate < 0 || newRate > 10) // Reasonable bounds
             {
-                _logger.LogWarning("Invalid interest rate {Rate} for account {AccountId}", newRate, maskedAccountId);
+                _logger.LogWarning("Invalid interest rate {Rate} for account {MaskedAccountId}", newRate, maskedAccountId);
                 return false;
             }
 
@@ -295,14 +295,14 @@ public class InterestCalculationService : IInterestCalculationService
 
             await _auditLogService.LogAsync("Interest Rate Updated", 
                 $"Interest rate for account {maskedAccountId} updated from {oldRate}% to {newRate}%", userId);
-            _logger.LogInformation("Interest rate for account {AccountId} updated from {OldRate}% to {NewRate}%", 
+            _logger.LogInformation("Interest rate for account {MaskedAccountId} updated from {OldRate}% to {NewRate}%", 
                 maskedAccountId, oldRate, newRate);
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating interest rate for account {AccountId}", SecureLoggingService.MaskGuid(accountId));
+            _logger.LogError(ex, "Error updating interest rate for account {MaskedAccountId}", SecureLoggingService.MaskGuid(accountId));
             return false;
         }
     }
