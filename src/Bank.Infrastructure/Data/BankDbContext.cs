@@ -28,7 +28,7 @@ public class BankDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<BatchJob> BatchJobs => Set<BatchJob>();
-    public DbSet<TwoFactorToken> TwoFactorTokens => Set<TwoFactorToken>();
+
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<AccountLockout> AccountLockouts => Set<AccountLockout>();
@@ -87,7 +87,7 @@ public class BankDbContext : IdentityDbContext<User, Role, Guid>
         builder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Transaction>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<BatchJob>().HasQueryFilter(e => !e.IsDeleted);
-        builder.Entity<TwoFactorToken>().HasQueryFilter(e => !e.IsDeleted);
+
         builder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Session>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<AccountLockout>().HasQueryFilter(e => !e.IsDeleted);

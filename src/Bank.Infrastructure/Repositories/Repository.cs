@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Bank.Domain.Common;
 using Bank.Domain.Interfaces;
+using Bank.Domain.Specifications;
 using Bank.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -105,6 +106,50 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     public IQueryable<T> Query()
     {
         return _dbSet.Where(e => !e.IsDeleted).AsQueryable();
+    }
+
+    public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> specification)
+    {
+        return await ApplySpecification(specification).ToListAsync();
+    }
+
+    public async Task<T?> FirstOrDefaultAsync(ISpecification<T> specification)
+    {
+        return await ApplySpecification(specification).FirstOrDefaultAsync();
+    }
+
+    public async Task<int> CountAsync(ISpecification<T> specification)
+    {
+        return await ApplySpecification(specification).CountAsync();
+    }
+
+    private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+    {
+        var query = _dbSet.Where(e => !e.IsDeleted).AsQueryable();
+
+        if (spec.Criteria != null)
+        {
+            query = query.Where(spec.Criteria);
+        }
+
+        query = spec.Includes.Aggregate(query,
+            (current, include) => current.Include(include));
+
+        if (spec.OrderBy != null)
+        {
+            query = query.OrderBy(spec.OrderBy);
+        }
+        else if (spec.OrderByDescending != null)
+        {
+            query = query.OrderByDescending(spec.OrderByDescending);
+        }
+
+        if (spec.IsPagingEnabled)
+        {
+            query = query.Skip(spec.Skip).Take(spec.Take);
+        }
+
+        return query;
     }
 }
 

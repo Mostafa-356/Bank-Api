@@ -67,7 +67,7 @@ public class CardService : ICardService
             }
 
             // Check if account is active
-            if (!account.IsActive())
+            if (account.Status != AccountStatus.Active)
             {
                 return new CardIssuanceResult
                 { Success = false,

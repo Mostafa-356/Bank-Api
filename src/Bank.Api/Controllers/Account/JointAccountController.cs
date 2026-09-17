@@ -334,7 +334,7 @@ public class JointAccountController : ControllerBase
             RequiresMultipleSignatures = account.RequiresMultipleSignatures,
             MultipleSignatureThreshold = account.MultipleSignatureThreshold,
             MinimumSignaturesRequired = account.MinimumSignaturesRequired,
-            ActiveJointHoldersCount = account.GetActiveJointHoldersCount(),
+            ActiveJointHoldersCount = account.JointHolders.Count(jh => jh.IsActive),
             JointHolders = holderDtos
         };
 

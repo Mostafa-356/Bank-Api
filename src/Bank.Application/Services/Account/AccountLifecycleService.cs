@@ -1,7 +1,8 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
+using Bank.Domain.Policies.Account;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,17 +15,20 @@ public class AccountLifecycleService : IAccountLifecycleService
     private readonly IFeeCalculationService _feeCalculationService;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<AccountLifecycleService> _logger;
+    private readonly IAccountDormancyPolicy _dormancyPolicy;
 
     public AccountLifecycleService(
         IUnitOfWork unitOfWork,
         IFeeCalculationService feeCalculationService,
         IAuditLogService auditLogService,
-        ILogger<AccountLifecycleService> logger)
+        ILogger<AccountLifecycleService> logger,
+        IAccountDormancyPolicy dormancyPolicy)
     {
         _unitOfWork = unitOfWork;
         _feeCalculationService = feeCalculationService;
         _auditLogService = auditLogService;
         _logger = logger;
+        _dormancyPolicy = dormancyPolicy;
     }
 
     /// <summary>
@@ -188,7 +192,7 @@ public class AccountLifecycleService : IAccountLifecycleService
 
             // Update account status
             var previousStatus = account.Status;
-            account.MarkAsDormant();
+            _dormancyPolicy.MarkAsDormant(account);
             account.UpdatedAt = DateTime.UtcNow;
             account.UpdatedBy = "SYSTEM";
 
@@ -245,7 +249,7 @@ public class AccountLifecycleService : IAccountLifecycleService
             var previousStatus = account.Status;
             account.Status = AccountStatus.Active;
             account.DormancyDate = null;
-            account.UpdateActivity();
+            _dormancyPolicy.UpdateActivity(account);
             account.UpdatedAt = DateTime.UtcNow;
             account.UpdatedBy = userId.ToString();
 

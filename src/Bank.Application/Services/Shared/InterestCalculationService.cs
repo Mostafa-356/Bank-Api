@@ -1,7 +1,8 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
+using Bank.Domain.Policies.Account;
 using Microsoft.Extensions.Logging;
 
 namespace Bank.Application.Services;
@@ -11,15 +12,18 @@ public class InterestCalculationService : IInterestCalculationService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<InterestCalculationService> _logger;
+    private readonly IAccountDormancyPolicy _dormancyPolicy;
 
     public InterestCalculationService(
         IUnitOfWork unitOfWork,
         IAuditLogService auditLogService,
-        ILogger<InterestCalculationService> logger)
+        ILogger<InterestCalculationService> logger,
+        IAccountDormancyPolicy dormancyPolicy)
     {
         _unitOfWork = unitOfWork;
         _auditLogService = auditLogService;
         _logger = logger;
+        _dormancyPolicy = dormancyPolicy;
     }
 
     public async Task<decimal> CalculateSimpleInterestAsync(Account account, DateTime fromDate, DateTime toDate)
@@ -159,7 +163,7 @@ public class InterestCalculationService : IInterestCalculationService
 
             account.Balance += interest;
             account.LastInterestCalculationDate = toDate;
-            account.UpdateActivity();
+            _dormancyPolicy.UpdateActivity(account);
 
             _unitOfWork.Repository<Account>().Update(account);
             await _unitOfWork.SaveChangesAsync();

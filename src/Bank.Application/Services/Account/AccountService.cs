@@ -1,6 +1,7 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Interfaces;
+using Bank.Domain.Policies.Account;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bank.Application.Services;
@@ -8,10 +9,12 @@ namespace Bank.Application.Services;
 public class AccountService : IAccountService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJointAccountPolicy _jointAccountPolicy;
 
-    public AccountService(IUnitOfWork unitOfWork)
+    public AccountService(IUnitOfWork unitOfWork, IJointAccountPolicy jointAccountPolicy)
     {
         _unitOfWork = unitOfWork;
+        _jointAccountPolicy = jointAccountPolicy;
     }
 
     public async Task<Account?> GetAccountByIdAsync(Guid id)
@@ -74,7 +77,7 @@ public class AccountService : IAccountService
         
         if (account == null) return false;
         
-        return account.CanUserAccess(userId);
+        return _jointAccountPolicy.CanUserAccess(account, userId);
     }
 
     public async Task<bool> UpdateAccountAsync(Account account)

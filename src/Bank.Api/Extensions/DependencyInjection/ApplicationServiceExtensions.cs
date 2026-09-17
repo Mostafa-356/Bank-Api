@@ -17,7 +17,7 @@ public static class ApplicationServiceExtensions
     {
         // Authentication & Authorization Services
         services.AddScoped<IAuthService, Bank.Application.Services.AuthService>();
-        services.AddScoped<ITwoFactorAuthService, Bank.Application.Services.TwoFactorAuthService>();
+
         services.AddScoped<ISessionService, Bank.Application.Services.SessionService>();
         services.AddScoped<IAuthorizationHelper, AuthorizationHelper>();
 

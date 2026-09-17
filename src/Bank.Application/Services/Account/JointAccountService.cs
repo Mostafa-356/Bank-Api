@@ -1,7 +1,8 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Interfaces;
+using Bank.Domain.Policies.Account;
 using Microsoft.Extensions.Logging;
 
 namespace Bank.Application.Services;
@@ -13,19 +14,25 @@ public class JointAccountService : IJointAccountService
     private readonly IAuditLogService _auditLogService;
     private readonly IAccountService _accountService;
     private readonly ILogger<JointAccountService> _logger;
+    private readonly IJointAccountPolicy _jointAccountPolicy;
+    private readonly IAccountTransactionPolicy _transactionPolicy;
 
     public JointAccountService(
         IUnitOfWork unitOfWork,
         IUserRepository userRepository,
         IAuditLogService auditLogService,
         IAccountService accountService,
-        ILogger<JointAccountService> logger)
+        ILogger<JointAccountService> logger,
+        IJointAccountPolicy jointAccountPolicy,
+        IAccountTransactionPolicy transactionPolicy)
     {
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _auditLogService = auditLogService;
         _accountService = accountService;
         _logger = logger;
+        _jointAccountPolicy = jointAccountPolicy;
+        _transactionPolicy = transactionPolicy;
     }
 
     public async Task<bool> AddJointHolderAsync(Guid accountId, Guid userId, JointAccountRole role, Guid addedByUserId)
@@ -40,7 +47,7 @@ public class JointAccountService : IJointAccountService
             }
 
             // Check if user is already a joint holder
-            if (account.HasJointHolder(userId) || account.UserId == userId)
+            if (_jointAccountPolicy.HasJointHolder(account, userId) || account.UserId == userId)
             {
                 _logger.LogWarning("User {UserId} is already associated with account {AccountId}", userId, accountId);
                 return false;
@@ -231,13 +238,13 @@ public class JointAccountService : IJointAccountService
 
             // Primary account holder can always perform transactions (subject to account limits)
             if (account.UserId == userId)
-                return account.CanDebit(amount);
+                return _transactionPolicy.CanDebit(account, amount);
 
             // Check joint holder permissions
             var jointHolder = account.JointHolders.FirstOrDefault(jh => jh.UserId == userId && jh.IsActive);
             if (jointHolder == null) return false;
 
-            return jointHolder.CanPerformTransaction(amount) && account.CanDebit(amount);
+            return jointHolder.CanPerformTransaction(amount) && _transactionPolicy.CanDebit(account, amount);
         }
         catch (Exception ex)
         {
@@ -253,7 +260,7 @@ public class JointAccountService : IJointAccountService
             var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
             if (account == null) return false;
 
-            return account.RequiresMultipleSignaturesForAmount(amount);
+            return _jointAccountPolicy.RequiresMultipleSignaturesForAmount(account, amount);
         }
         catch (Exception ex)
         {
