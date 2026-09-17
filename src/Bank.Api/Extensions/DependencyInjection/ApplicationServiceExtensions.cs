@@ -104,8 +104,6 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IPasswordPolicyService, Bank.Application.Services.PasswordPolicyService>();
         services.AddScoped<IIpWhitelistService, Bank.Application.Services.IpWhitelistService>();
 
-        // Utility Services
-        services.AddScoped<ITokenGenerationService, Bank.Application.Services.TokenGenerationService>();
         services.AddScoped<ICalculationService, Bank.Application.Services.CalculationService>();
         services.AddScoped<IValidationService, Bank.Application.Services.ValidationService>();
 

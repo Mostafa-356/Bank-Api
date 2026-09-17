@@ -9,6 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Bank.Infrastructure.Services.Security;
 
+/// <summary>
+/// Canonical JWT implementation. Reads from the unified "Jwt:" configuration section.
+/// Throws InvalidOperationException if the signing key is not configured — no hardcoded fallback.
+/// </summary>
 public class JwtTokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
@@ -18,58 +22,87 @@ public class JwtTokenService : ITokenService
         _configuration = configuration;
     }
 
+    /// <inheritdoc />
     public Task<string> GenerateAccessTokenAsync(User user)
+        => GenerateAccessTokenAsync(user, Array.Empty<string>());
+
+    /// <inheritdoc />
+    public Task<string> GenerateAccessTokenAsync(User user, IList<string> roles)
     {
+        var jwtSection = _configuration.GetSection("Jwt");
+
+        var rawKey = jwtSection["Key"];
+        if (string.IsNullOrWhiteSpace(rawKey))
+            throw new InvalidOperationException(
+                "JWT signing key is not configured. Set the 'Jwt:Key' configuration value (min 32 bytes).");
+
+        var keyBytes = Encoding.UTF8.GetBytes(rawKey);
+        if (keyBytes.Length < 32)
+            throw new InvalidOperationException(
+                "JWT signing key must be at least 32 bytes (256 bits). Update 'Jwt:Key'.");
+
+        var expiryMinutes = int.TryParse(jwtSection["ExpiryMinutes"], out var mins) ? mins : 60;
+
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? string.Empty),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            // NameIdentifier mirrors Sub so ClaimTypes.NameIdentifier lookups work in controllers
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"] ?? "super_secret_fallback_key_that_is_at_least_32_bytes_long!"));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        
-        // Expiration would be pulled from config in a real scenario
-        var expirationInMinutes = int.TryParse(_configuration["JwtSettings:ExpirationInMinutes"], out var exp) ? exp : 60;
+        foreach (var role in roles)
+            claims.Add(new Claim(ClaimTypes.Role, role));
+
+        var signingKey = new SymmetricSecurityKey(keyBytes);
+        var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["JwtSettings:Issuer"],
-            audience: _configuration["JwtSettings:Audience"],
+            issuer: jwtSection["Issuer"],
+            audience: jwtSection["Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expirationInMinutes),
+            notBefore: DateTime.UtcNow,
+            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
             signingCredentials: creds
         );
 
         return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
     }
 
+    /// <inheritdoc />
     public Task<string> GenerateRefreshTokenAsync()
     {
-        var randomNumber = new byte[32];
+        var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Task.FromResult(Convert.ToBase64String(randomNumber));
     }
 
+    /// <inheritdoc />
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
-        var tokenValidationParameters = new TokenValidationParameters
+        var rawKey = _configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(rawKey))
+            throw new InvalidOperationException("JWT signing key is not configured.");
+
+        var validationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
             ValidateIssuer = false,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"] ?? "super_secret_fallback_key_that_is_at_least_32_bytes_long!")),
-            ValidateLifetime = false // Here we are saying that we don't care about the token's expiration date
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(rawKey)),
+            ValidateLifetime = false // Intentional: caller passes expired tokens for refresh flows
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+        var principal = tokenHandler.ValidateToken(token, validationParameters, out var securityToken);
 
-        if (securityToken is not JwtSecurityToken jwtSecurityToken || 
-            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+        if (securityToken is not JwtSecurityToken jwtToken ||
+            !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
         {
-            throw new SecurityTokenException("Invalid token");
+            throw new SecurityTokenException("Invalid token algorithm.");
         }
 
         return principal;

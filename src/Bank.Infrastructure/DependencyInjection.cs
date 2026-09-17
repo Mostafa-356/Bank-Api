@@ -1,3 +1,4 @@
+using Bank.Application.Interfaces;
 using Bank.Application.Interfaces.Security;
 using Bank.Infrastructure.Services.Security;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ public static class DependencyInjection
         // Register Security Canonical Services
         services.AddScoped<ICurrentUser, CurrentUserAccessor>();
         services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<ITwoFactorAuthService, TwoFactorService>();
 
         // (Other infrastructure registrations would go here: DbContext, Repositories, etc.)
         

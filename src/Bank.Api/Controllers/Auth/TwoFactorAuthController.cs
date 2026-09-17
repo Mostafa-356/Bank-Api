@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
+using Bank.Application.Interfaces.Security;
 using Bank.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace Bank.Api.Controllers.Auth;
 public class TwoFactorAuthController : ControllerBase
 {
     private readonly ITwoFactorAuthService _twoFactorService;
+    private readonly ICurrentUser _currentUser;
 
-    public TwoFactorAuthController(ITwoFactorAuthService twoFactorService)
+    public TwoFactorAuthController(ITwoFactorAuthService twoFactorService, ICurrentUser currentUser)
     {
         _twoFactorService = twoFactorService;
+        _currentUser = currentUser;
     }
 
     /// <summary>
@@ -25,10 +28,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetStatus()
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var status = await _twoFactorService.GetTwoFactorStatusAsync(userId.Value);
+        var status = await _twoFactorService.GetTwoFactorStatusAsync(_currentUser.UserId.Value);
         return Ok(status);
     }
 
@@ -39,10 +41,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SetupAuthenticator()
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var result = await _twoFactorService.SetupAuthenticatorAsync(userId.Value);
+        var result = await _twoFactorService.SetupAuthenticatorAsync(_currentUser.UserId.Value);
         
         if (!result.Success)
         {
@@ -64,10 +65,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> CompleteSetup([FromBody] CompleteSetupRequest request)
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var result = await _twoFactorService.CompleteSetupAsync(userId.Value, request.VerificationToken);
+        var result = await _twoFactorService.CompleteSetupAsync(_currentUser.UserId.Value, request.VerificationToken);
         
         if (!result.Success)
         {
@@ -88,10 +88,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GenerateToken([FromBody] GenerateTokenRequest request)
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var result = await _twoFactorService.GenerateTokenAsync(userId.Value, request.Method, request.Destination);
+        var result = await _twoFactorService.GenerateTokenAsync(_currentUser.UserId.Value, request.Method, request.Destination);
         
         if (!result.Success)
         {
@@ -112,12 +111,11 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> VerifyToken([FromBody] VerifyTokenRequest request, [FromHeader(Name = "User-Agent")] string? userAgent)
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        var result = await _twoFactorService.VerifyTokenAsync(userId.Value, request.Token, ipAddress, userAgent);
+        var result = await _twoFactorService.VerifyTokenAsync(_currentUser.UserId.Value, request.Token, ipAddress, userAgent);
         
         if (!result.Success)
         {
@@ -139,10 +137,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> VerifyBackupCode([FromBody] VerifyBackupCodeRequest request)
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var isValid = await _twoFactorService.VerifyBackupCodeAsync(userId.Value, request.BackupCode);
+        var isValid = await _twoFactorService.VerifyBackupCodeAsync(_currentUser.UserId.Value, request.BackupCode);
         
         if (!isValid)
         {
@@ -164,17 +161,16 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> RegenerateBackupCodes()
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
         // Verify 2FA is enabled
-        var isEnabled = await _twoFactorService.IsTwoFactorEnabledAsync(userId.Value);
+        var isEnabled = await _twoFactorService.IsTwoFactorEnabledAsync(_currentUser.UserId.Value);
         if (!isEnabled)
         {
             return BadRequest(new { message = "Two-factor authentication is not enabled" });
         }
 
-        var backupCodes = await _twoFactorService.GenerateBackupCodesAsync(userId.Value);
+        var backupCodes = await _twoFactorService.GenerateBackupCodesAsync(_currentUser.UserId.Value);
         
         return Ok(new { backupCodes });
     }
@@ -186,10 +182,9 @@ public class TwoFactorAuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> DisableTwoFactor()
     {
-        var userId = GetCurrentUserId();
-        if (userId == null) return Unauthorized();
+        if (_currentUser.UserId == null) return Unauthorized();
 
-        var success = await _twoFactorService.DisableTwoFactorAsync(userId.Value);
+        var success = await _twoFactorService.DisableTwoFactorAsync(_currentUser.UserId.Value);
         
         if (!success)
         {
@@ -198,12 +193,4 @@ public class TwoFactorAuthController : ControllerBase
 
         return Ok(new { message = "Two-factor authentication disabled successfully" });
     }
-
-    private Guid? GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;
-    }
 }
-
-
