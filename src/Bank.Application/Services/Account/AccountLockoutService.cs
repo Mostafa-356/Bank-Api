@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
@@ -262,7 +262,7 @@ public sealed class AccountLockoutService : IAccountLockoutService
                 }));
 
             _logger.LogWarning("Account {UserId} manually locked. Reason: {Reason}, Duration: {Duration}, Locked by: {LockedBy}", 
-                userId, reason, lockoutDuration, lockedByUserId);
+                userId, Bank.Application.Services.SecureLoggingService.SanitizeInput(reason.ToString()), lockoutDuration, lockedByUserId);
 
             return true;
         }

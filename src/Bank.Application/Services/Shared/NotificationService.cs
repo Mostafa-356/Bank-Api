@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs;
+using Bank.Application.DTOs;
 using Bank.Application.DTOs.Shared.Notification;
 using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
@@ -311,13 +311,13 @@ public class NotificationService : INotificationService
             _unitOfWork.Repository<NotificationPreference>().Update(preferences);
             await _unitOfWork.SaveChangesAsync();
 
-            _logger.LogInformation("Notification preferences updated for user {UserId}", request.UserId);
+            _logger.LogInformation("Notification preferences updated for user {UserId}", SecureLoggingService.SanitizeInput(request.UserId));
 
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating notification preferences for user {UserId}", request.UserId);
+            _logger.LogError(ex, "Error updating notification preferences for user {UserId}", SecureLoggingService.SanitizeInput(request.UserId));
             return false;
         }
     }

@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs;
+using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
 using Bank.Application.Helpers;
 using Bank.Application.Helpers.Shared;
@@ -77,7 +77,7 @@ public class PinManagementService : IPinManagementService
                 "Your card PIN has been successfully set.");
 
             _logger.LogInformation("PIN set successfully for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
 
             return new PinOperationResponse
             { Success = true,
@@ -87,7 +87,7 @@ public class PinManagementService : IPinManagementService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error setting PIN for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
             
             return new PinOperationResponse
             { Success = false,
@@ -165,7 +165,7 @@ public class PinManagementService : IPinManagementService
                 "Your card PIN has been successfully changed.");
 
             _logger.LogInformation("PIN changed successfully for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
 
             return new PinOperationResponse
             { Success = true,
@@ -175,7 +175,7 @@ public class PinManagementService : IPinManagementService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error changing PIN for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
             
             return new PinOperationResponse
             { Success = false,
@@ -232,7 +232,7 @@ public class PinManagementService : IPinManagementService
                 "Your card PIN has been successfully reset.");
 
             _logger.LogInformation("PIN reset successfully for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
 
             return new PinOperationResponse
             { Success = true,
@@ -242,7 +242,7 @@ public class PinManagementService : IPinManagementService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error resetting PIN for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
             
             return new PinOperationResponse
             { Success = false,
@@ -316,7 +316,7 @@ public class PinManagementService : IPinManagementService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error verifying PIN for card {CardId} by user {UserId}", 
-                request.CardId, userId);
+                SecureLoggingService.SanitizeInput(request.CardId), SecureLoggingService.SanitizeInput(userId));
             
             return new PinVerificationResult
             {

@@ -65,7 +65,7 @@ public class BillerManagementController : ControllerBase
         await _billerRepository.AddAsync(biller);
         await _unitOfWork.SaveChangesAsync();
 
-        _logger.LogInformation("Biller created: {BillerId} - {BillerName}", biller.Id, biller.Name);
+        _logger.LogInformation("Biller created: {BillerId} - {BillerName}", biller.Id, Bank.Application.Services.SecureLoggingService.SanitizeInput(biller.Name));
 
         var billerDto = MapToBillerDto(biller);
         return CreatedAtAction(nameof(GetBillerById), new { billerId = biller.Id }, billerDto);
@@ -110,7 +110,7 @@ public class BillerManagementController : ControllerBase
         _billerRepository.Update(biller);
         await _unitOfWork.SaveChangesAsync();
 
-        _logger.LogInformation("Biller updated: {BillerId} - {BillerName}", biller.Id, biller.Name);
+        _logger.LogInformation("Biller updated: {BillerId} - {BillerName}", biller.Id, Bank.Application.Services.SecureLoggingService.SanitizeInput(biller.Name));
 
         var billerDto = MapToBillerDto(biller);
         return Ok(billerDto);

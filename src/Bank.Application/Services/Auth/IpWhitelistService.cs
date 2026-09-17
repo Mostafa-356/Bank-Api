@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Bank.Application.DTOs;
@@ -76,7 +76,7 @@ public sealed class IpWhitelistService : IIpWhitelistService
                 }));
 
             _logger.LogInformation("IP whitelist entry created for {IpAddress} ({Type}) by user {UserId}", 
-                ipAddress, type, createdByUserId);
+                SecureLoggingService.SanitizeInput(ipAddress), type, createdByUserId);
 
             return new IpWhitelistResult
             { Success = true,
@@ -86,7 +86,7 @@ public sealed class IpWhitelistService : IIpWhitelistService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error adding IP {IpAddress} to whitelist", ipAddress);
+            _logger.LogError(ex, "Error adding IP {IpAddress} to whitelist", SecureLoggingService.SanitizeInput(ipAddress));
             return new IpWhitelistResult
             { Success = false,
                 ErrorMessage = "Failed to add IP to whitelist"

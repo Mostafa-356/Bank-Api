@@ -59,7 +59,7 @@ public class TwoFactorAuthMiddleware
         }
 
         // 2FA verification required
-        _logger.LogWarning("2FA verification required for user {UserId} accessing {Path}", userId, context.Request.Path);
+        _logger.LogWarning("2FA verification required for user {UserId} accessing {Path}", userId, Bank.Application.Services.SecureLoggingService.SanitizeInput(context.Request.Path));
         
         context.Response.StatusCode = 403;
         await context.Response.WriteAsync("Two-factor authentication verification required");

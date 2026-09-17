@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs;
+using Bank.Application.DTOs;
 using Bank.Application.Interfaces;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
@@ -74,7 +74,7 @@ public class PaymentTemplateService : IPaymentTemplateService
             template.Id.ToString());
 
         _logger.LogInformation("Created payment template {TemplateId} '{TemplateName}' for user {UserId}", 
-            template.Id, request.Name, request.CreatedByUserId);
+            template.Id, SecureLoggingService.SanitizeInput(request.Name), request.CreatedByUserId);
 
         return template;
     }

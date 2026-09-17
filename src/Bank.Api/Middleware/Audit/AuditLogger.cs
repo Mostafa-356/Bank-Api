@@ -62,7 +62,7 @@ public class AuditLogger
 
         _logger.LogInformation(
             "Audit: {Action} | User: {UserId} | IP: {IpAddress} | Status: {StatusCode} | Duration: {DurationMs}ms | RequestId: {RequestId}",
-            action, data.UserId?.ToString() ?? "anonymous", data.IpAddress, data.StatusCode, data.DurationMs, data.RequestId);
+            Bank.Application.Services.SecureLoggingService.SanitizeInput(action), Bank.Application.Services.SecureLoggingService.SanitizeInput(data.UserId?.ToString() ?? "anonymous"), Bank.Application.Services.SecureLoggingService.SanitizeInput(data.IpAddress), data.StatusCode, data.DurationMs, data.RequestId);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class AuditLogger
 
         _logger.LogWarning(
             "SecurityEvent: {Action} | User: {UserId} | IP: {IpAddress} | Path: {Path} | RequestId: {RequestId} | Details: {Details}",
-            data.Action, data.UserId?.ToString() ?? "anonymous", data.IpAddress, data.Path, data.RequestId, data.AdditionalData);
+            Bank.Application.Services.SecureLoggingService.SanitizeInput(data.Action), Bank.Application.Services.SecureLoggingService.SanitizeInput(data.UserId?.ToString() ?? "anonymous"), Bank.Application.Services.SecureLoggingService.SanitizeInput(data.IpAddress), Bank.Application.Services.SecureLoggingService.SanitizeInput(data.Path), data.RequestId, Bank.Application.Services.SecureLoggingService.SanitizeInput(data.AdditionalData));
     }
 
     private static Guid? GetUserId(HttpContext context)

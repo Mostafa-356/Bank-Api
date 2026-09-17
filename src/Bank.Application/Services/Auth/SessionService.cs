@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Bank.Application.DTOs;
@@ -283,7 +283,7 @@ public sealed class SessionService : ISessionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error refreshing session with refresh token {RefreshTokenMasked}", MaskToken(refreshToken));
+            _logger.LogError(ex, "Error refreshing session with refresh token {RefreshTokenMasked}", SecureLoggingService.SanitizeInput(MaskToken(refreshToken)));
             return new SessionResult { Success = false, ErrorMessage = "Failed to refresh session" };
         }
     }

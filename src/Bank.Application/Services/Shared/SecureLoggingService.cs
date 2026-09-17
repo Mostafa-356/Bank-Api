@@ -1,4 +1,4 @@
-﻿using Bank.Application.Helpers.Shared;
+using Bank.Application.Helpers.Shared;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
@@ -78,5 +78,14 @@ public static class SecureLoggingService
     public static void LogWarningSecurely(ILogger logger, string operation)
     {
         logger.LogWarning("Warning during {Operation}", operation);
+    }
+
+    /// <summary>
+    /// Sanitizes user input for logging to prevent log injection (CWE-117).
+    /// </summary>
+    public static string SanitizeInput(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return input.Replace("\r", "").Replace("\n", " ");
     }
 }
