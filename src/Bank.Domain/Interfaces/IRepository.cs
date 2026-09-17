@@ -22,4 +22,9 @@ public interface IRepository<T> where T : BaseEntity
     Task<(IEnumerable<T> Items, int TotalCount)> ListAsync(Expression<Func<T, bool>>? predicate = null, int page = 1, int pageSize = 10);
     Task<(IEnumerable<T> Items, int TotalCount)> SearchAsync(string searchTerm, int page = 1, int pageSize = 10);
     IQueryable<T> Query();
+
+    // Specification Pattern Methods
+    Task<IReadOnlyList<T>> ListAsync(Specifications.ISpecification<T> spec);
+    Task<T?> FirstOrDefaultAsync(Specifications.ISpecification<T> spec);
+    Task<int> CountAsync(Specifications.ISpecification<T> spec);
 }

@@ -1,0 +1,99 @@
+name: Performance — Load Testing
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly on Monday at 3 AM UTC
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL for performance testing'
+        required: true
+        default: 'https://bank.yourdomain.com'
+      duration:
+        description: 'Test duration (seconds per phase)'
+        required: true
+        default: '60'
+
+permissions:
+  contents: read
+
+jobs:
+  load-test:
+    name: Artillery Load Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Artillery
+      run: npm install --global artillery@latest --ignore-scripts
+
+    - name: Create load test config
+      run: |
+        TARGET="${{ github.event.inputs.target_url || 'https://bank.yourdomain.com' }}"
+        DURATION="${{ github.event.inputs.duration || '60' }}"
+
+        cat > load-test.yml << EOF
+        config:
+          target: "$TARGET"
+          phases:
+            - duration: $DURATION
+              arrivalRate: 10
+              name: Warm up
+            - duration: $DURATION
+              arrivalRate: 50
+              name: Load test
+            - duration: $DURATION
+              arrivalRate: 100
+              name: Stress test
+        scenarios:
+          - name: Health Check
+            weight: 20
+            flow:
+              - get:
+                  url: /health
+                  expect:
+                    - statusCode: 200
+          - name: Account Operations
+            weight: 80
+            flow:
+              - get:
+                  url: /api/v1/accounts
+                  headers:
+                    Authorization: "Bearer {{ authToken }}"
+                  expect:
+                    - statusCode:
+                      - 200
+                      - 401
+        EOF
+
+    - name: Run load test
+      run: artillery run load-test.yml --output results.json
+      continue-on-error: true
+
+    - name: Generate HTML report
+      run: artillery report results.json --output report.html
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results-${{ github.run_id }}
+        path: |
+          results.json
+          report.html
+        retention-days: 30
+
+    - name: Assert performance thresholds
+      run: |
+        P95=$(cat results.json | jq '.aggregate.latency.p95 // 9999')
+        echo "P95 response time: ${P95}ms (threshold: 2000ms)"
+        if [ $(echo "$P95 > 2000" | bc -l) -eq 1 ]; then
+          echo "❌ P95 exceeds 2000ms threshold"
+          exit 1
+        fi
+        echo "✅ Performance thresholds passed"

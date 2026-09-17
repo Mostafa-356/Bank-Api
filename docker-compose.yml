@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # --- PostgreSQL Database ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: bank-postgres
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-ChangeMe!Secure123}
+      - POSTGRES_DB=${DB_NAME:-bankdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bank-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-bankdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Redis Cache ---
+  redis:
+    image: redis:7-alpine
+    container_name: bank-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bank-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # --- Bank API ---
+  bank-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bank-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ASPNETCORE_URLS=http://+:5000
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-ChangeMe!Secure123}@postgres:5432/${DB_NAME:-bankdb}
+      - JwtSettings__Secret=${JWT_KEY:-your-secret-jwt-key-change-in-production}
+      - JwtSettings__Issuer=${JWT_ISSUER:-BankAPI}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-BankClients}
+      - JwtSettings__ExpirationInMinutes=${JWT_EXPIRATION:-60}
+      - Redis__ConnectionString=redis:6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bank-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  bank-network:
+    driver: bridge

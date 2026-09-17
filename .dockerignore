@@ -1,21 +1,31 @@
+## Build artifacts
+**/bin/
+**/obj/
+
+## Git & IDE metadata
 .git
 .gitignore
 .github
 .vscode
 .idea
-bin
-obj
+.kiro
+.agents
+
+## Logs & temp files
 *.log
-*.md
-README.md
-LICENSE
-.DS_Store
+*.tmp
+nohup.out
+
+## Secrets & environment
 .env.local
 .env.*.local
-.agents
-attached_assets
-screenshots
-docs
-devops
-.replit
-.kiro
+
+## Documentation & assets (not needed in image)
+README.md
+LICENSE
+docs/
+screenshots/
+test-postman/
+
+## DevOps tooling (not part of the app)
+devops/

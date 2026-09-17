@@ -1,4 +1,4 @@
-name: Code Quality Analysis
+name: Code Quality — CodeQL
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 1 * * *'  # Daily at 1 AM
+    - cron: '0 1 * * 1'  # Weekly on Monday at 1 AM UTC
 
 permissions:
   contents: read
@@ -16,31 +16,34 @@ jobs:
   codeql:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-      
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: 'csharp'
-        
+    - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-        
-    - name: Build .NET project
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        queries: security-extended
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: ${{ runner.os }}-nuget-
+
+    - name: Restore & Build for CodeQL
       run: |
         dotnet restore src/Bank.sln
-        dotnet build src/Bank.sln --no-restore
-        
+        dotnet build src/Bank.sln --no-restore --configuration Release
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:csharp"
+        category: '/language:csharp'
