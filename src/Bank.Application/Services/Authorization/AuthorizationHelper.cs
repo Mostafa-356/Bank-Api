@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces.Authorization;
+using Bank.Application.Interfaces.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace Bank.Application.Services.Authorization;

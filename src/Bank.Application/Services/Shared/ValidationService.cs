@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Application.Validators.Account;
 using Bank.Application.Validators.Auth;
 using Bank.Application.Validators.Card;

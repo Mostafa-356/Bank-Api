@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Application.Helpers.Auth;
 using Bank.Application.Helpers.Shared;
 

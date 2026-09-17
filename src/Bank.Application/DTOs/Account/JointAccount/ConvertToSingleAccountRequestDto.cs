@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.JointAccount;
+namespace Bank.Application.DTOs.Account.JointAccount;
 
 /// <summary>
 /// Request to convert joint account to single account

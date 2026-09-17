@@ -1,4 +1,3 @@
-using System;
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
 using Bank.Domain.Policies.Account;

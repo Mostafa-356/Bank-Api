@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.Validation;
+namespace Bank.Application.DTOs.Account.Validation;
 
 /// <summary>
 /// Routing number validation result

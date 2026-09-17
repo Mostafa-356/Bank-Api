@@ -1,6 +1,5 @@
 using Bank.Domain.Entities;
 using Bank.Domain.Enums;
-using System.Linq;
 
 namespace Bank.Domain.Policies.Account;
 

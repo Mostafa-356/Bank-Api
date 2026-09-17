@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Payment.Recurring;
+namespace Bank.Application.DTOs.Payment.Recurring;
 
 public class BulkTransferItem
 {

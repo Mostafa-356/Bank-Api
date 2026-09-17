@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.JointAccount;
+namespace Bank.Application.DTOs.Account.JointAccount;
 
 /// <summary>
 /// Transaction permission result

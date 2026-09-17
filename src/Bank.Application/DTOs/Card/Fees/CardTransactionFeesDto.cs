@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Bank.Domain.Enums;
 
 namespace Bank.Application.DTOs.Card.Fees;

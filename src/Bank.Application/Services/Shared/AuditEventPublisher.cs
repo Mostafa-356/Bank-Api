@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;

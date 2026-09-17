@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Payment.Receipt;
+namespace Bank.Application.DTOs.Payment.Receipt;
 
 public class PaymentRetryRequest
 {

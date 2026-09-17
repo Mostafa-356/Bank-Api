@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Statement.Transaction;
+namespace Bank.Application.DTOs.Statement.Transaction;
 
 /// <summary>
 /// Validation result model

@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Common;
+using Bank.Application.DTOs.Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace Bank.Application.DTOs.Card.Fees;

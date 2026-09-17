@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Shared.Audit;
+namespace Bank.Application.DTOs.Shared.Audit;
 
 public class AuditLogDto
 {

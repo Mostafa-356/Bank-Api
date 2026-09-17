@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Loan.Analytics;
+namespace Bank.Application.DTOs.Loan.Analytics;
 
 /// <summary>
 /// DTO for loan performance metrics

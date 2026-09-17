@@ -216,7 +216,7 @@ public class DepositController : ControllerBase
 
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         return Ok(deposit);
     }
@@ -233,7 +233,7 @@ public class DepositController : ControllerBase
 
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(deposit.Id);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         return Ok(deposit);
     }
@@ -275,7 +275,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var details = await _depositService.GetMaturityDetailsAsync(depositId);
         return Ok(details);
@@ -289,7 +289,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var (userId, _) = GetCurrentUserContext();
         var success = await _depositService.ProcessMaturityAsync(depositId, action, userId);
@@ -307,7 +307,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var (userId, _) = GetCurrentUserContext();
         var renewedDeposit = await _depositService.RenewFixedDepositAsync(depositId, request, userId);
@@ -326,7 +326,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var details = await _depositService.CalculateEarlyWithdrawalAsync(depositId, withdrawalAmount);
         return Ok(details);
@@ -340,7 +340,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var (userId, _) = GetCurrentUserContext();
         var success = await _depositService.ProcessEarlyWithdrawalAsync(depositId, request, userId);
@@ -358,7 +358,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var (userId, _) = GetCurrentUserContext();
         var success = await _depositService.ProcessPartialWithdrawalAsync(depositId, request, userId);
@@ -379,7 +379,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var (userId, _) = GetCurrentUserContext();
         var certificate = await _certificateGenerator.GenerateCertificateAsync(depositId, userId);
@@ -398,7 +398,7 @@ public class DepositController : ControllerBase
 
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(certificate.FixedDepositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         return Ok(certificate);
     }
@@ -415,7 +415,7 @@ public class DepositController : ControllerBase
 
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(certificate.FixedDepositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var pdfBytes = await _certificateGenerator.GetCertificatePdfAsync(certificateId);
         return File(pdfBytes, "application/pdf", $"certificate_{certificate.CertificateNumber}.pdf");
@@ -447,7 +447,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var transactions = await _depositService.GetDepositTransactionsAsync(depositId, fromDate, toDate);
         return Ok(transactions);
@@ -528,7 +528,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var withdrawalService = HttpContext.RequestServices.GetRequiredService<IDepositWithdrawalService>();
         var calculation = await withdrawalService.CalculateDetailedWithdrawalAsync(depositId, withdrawalAmount);
@@ -543,7 +543,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var withdrawalService = HttpContext.RequestServices.GetRequiredService<IDepositWithdrawalService>();
         var periods = await withdrawalService.GetPenaltyFreePeriodsAsync(depositId);
@@ -558,7 +558,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var withdrawalService = HttpContext.RequestServices.GetRequiredService<IDepositWithdrawalService>();
         var history = await withdrawalService.GetWithdrawalHistoryAsync(depositId);
@@ -577,7 +577,7 @@ public class DepositController : ControllerBase
     {
         var (isAuthorized, errorMessage) = await VerifyDepositOwnershipAsync(depositId);
         if (!isAuthorized)
-            return Forbid(errorMessage);
+            return this.CreateForbiddenResponse(errorMessage ?? "Forbidden");
 
         var maturityService = HttpContext.RequestServices.GetRequiredService<IDepositMaturityService>();
         var success = await maturityService.ProcessCustomerConsentAsync(depositId, request.ConsentGiven, request.PreferredAction);

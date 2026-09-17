@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Deposit.Core;
+namespace Bank.Application.DTOs.Deposit.Core;
 
 /// <summary>
 /// Deposit summary data transfer object

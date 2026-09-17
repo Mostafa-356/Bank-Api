@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Auth.TwoFactor;
+namespace Bank.Application.DTOs.Auth.TwoFactor;
 
 public class VerifyTokenRequest
 {

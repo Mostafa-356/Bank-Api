@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Shared.RateLimit;
+namespace Bank.Application.DTOs.Shared.RateLimit;
 
 /// <summary>
 /// Rate limiting policy configuration

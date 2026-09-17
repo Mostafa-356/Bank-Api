@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Statement.Core;
+using Bank.Application.DTOs.Statement.Core;
 
 namespace Bank.Application.DTOs.Statement.Search;
 

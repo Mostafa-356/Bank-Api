@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Loan.Analytics;
+namespace Bank.Application.DTOs.Loan.Analytics;
 
 /// <summary>
 /// Enum for loan risk levels

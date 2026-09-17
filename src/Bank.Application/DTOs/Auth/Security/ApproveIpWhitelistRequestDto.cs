@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Auth.Security;
+namespace Bank.Application.DTOs.Auth.Security;
 
 public class ApproveIpWhitelistRequest
 {

@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Payment.Batch;
+namespace Bank.Application.DTOs.Payment.Batch;
 
 public class BatchPaymentResponse
 {

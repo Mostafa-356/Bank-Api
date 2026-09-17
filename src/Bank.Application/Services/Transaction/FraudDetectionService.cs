@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Application.DTOs;
 using Bank.Application.DTOs.Transaction.Fraud;
 using Bank.Domain.Entities;

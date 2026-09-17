@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Card.Advanced;
+namespace Bank.Application.DTOs.Card.Advanced;
 
 /// <summary>
 /// Batch settlement result

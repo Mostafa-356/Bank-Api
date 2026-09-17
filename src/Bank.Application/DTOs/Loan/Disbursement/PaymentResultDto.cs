@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Common;
+using Bank.Application.DTOs.Common;
 
 namespace Bank.Application.DTOs.Loan.Disbursement;
 

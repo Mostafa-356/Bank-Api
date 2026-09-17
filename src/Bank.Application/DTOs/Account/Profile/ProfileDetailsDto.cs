@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.Profile;
+namespace Bank.Application.DTOs.Account.Profile;
 
 public class ProfileDto
 {

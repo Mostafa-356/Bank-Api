@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Loan.Core;
+using Bank.Application.DTOs.Loan.Core;
 using Bank.Application.DTOs.Loan.Application;
 using Bank.Application.DTOs.Loan.Approval;
 using Bank.Application.DTOs.Loan.Disbursement;

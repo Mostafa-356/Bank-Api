@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Statement.Summary;
+namespace Bank.Application.DTOs.Statement.Summary;
 
 /// <summary>
 /// Monthly transaction summary

@@ -1,4 +1,4 @@
-﻿using Bank.Application.Interfaces;
+using Bank.Application.Interfaces;
 using Bank.Application.Helpers.Loan;
 using Bank.Application.Helpers.Payment;
 using Bank.Application.Helpers.Deposit;

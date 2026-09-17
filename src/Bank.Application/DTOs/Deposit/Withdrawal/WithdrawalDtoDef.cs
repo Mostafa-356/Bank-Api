@@ -1,6 +1,5 @@
-﻿namespace Bank.Application.DTOs.Deposit.Withdrawal;
+namespace Bank.Application.DTOs.Deposit.Withdrawal;
 using Bank.Domain.Enums;
-using System;
 
 public class WithdrawalDto
 {

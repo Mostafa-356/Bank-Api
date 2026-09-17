@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs;
+using Bank.Application.DTOs;
 using Bank.Application.Helpers.Account;
 using Bank.Application.Interfaces;
 using Bank.Domain.Enums;
@@ -521,8 +521,8 @@ public sealed class AccountValidationService : IAccountValidationService
     #region Private Helper Methods
 
     /// <summary>
-    /// Masks an account number for safe logging â€” shows only the last 4 digits.
-    /// e.g. "1234567890" â†’ "******7890"
+    /// Masks an account number for safe logging — shows only the last 4 digits.
+    /// e.g. "1234567890" → "******7890"
     /// </summary>
     private static string MaskAccountNumber(string? accountNumber)
     {
@@ -652,34 +652,34 @@ public sealed class AccountValidationService : IAccountValidationService
         var summary = new List<string>();
 
         if (result.AccountExists)
-            summary.Add("âœ“ Account exists");
+            summary.Add("✓ Account exists");
         else
-            summary.Add("âœ— Account not found");
+            summary.Add("✗ Account not found");
 
         if (result.SwiftValidation?.IsValid == true)
-            summary.Add("âœ“ SWIFT code valid");
+            summary.Add("✓ SWIFT code valid");
         else if (result.SwiftValidation != null)
-            summary.Add("âœ— SWIFT code invalid");
+            summary.Add("✗ SWIFT code invalid");
 
         if (result.IbanValidation?.IsValid == true)
-            summary.Add("âœ“ IBAN valid");
+            summary.Add("✓ IBAN valid");
         else if (result.IbanValidation != null)
-            summary.Add("âœ— IBAN invalid");
+            summary.Add("✗ IBAN invalid");
 
         if (result.RoutingValidation?.IsValid == true)
-            summary.Add("âœ“ Routing number valid");
+            summary.Add("✓ Routing number valid");
         else if (result.RoutingValidation != null)
-            summary.Add("âœ— Routing number invalid");
+            summary.Add("✗ Routing number invalid");
 
         if (result.NameMatches)
-            summary.Add("âœ“ Name matches");
+            summary.Add("✓ Name matches");
         else if (result.MatchedAccountHolderName != null)
-            summary.Add("âš  Name mismatch");
+            summary.Add("⚠ Name mismatch");
 
         if (result.PassesSanctionsCheck)
-            summary.Add("âœ“ Sanctions check passed");
+            summary.Add("✓ Sanctions check passed");
         else
-            summary.Add("âœ— Sanctions check failed");
+            summary.Add("✗ Sanctions check failed");
 
         return string.Join(", ", summary);
     }

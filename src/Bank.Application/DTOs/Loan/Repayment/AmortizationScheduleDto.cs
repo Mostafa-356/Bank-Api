@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Loan.Repayment;
+namespace Bank.Application.DTOs.Loan.Repayment;
 
 /// <summary>
 /// DTO for amortization schedule

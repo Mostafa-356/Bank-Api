@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Statement.Summary;
+using Bank.Application.DTOs.Statement.Summary;
 
 namespace Bank.Application.DTOs.Statement.Analytics;
 

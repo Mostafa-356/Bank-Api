@@ -106,7 +106,7 @@ public class SessionController : ControllerBase
         
         if (!result.Success)
         {
-            return this.CreateUnauthorizedResponse(result.ErrorMessage);
+            return this.CreateUnauthorizedResponse(result.ErrorMessage ?? "Unauthorized");
         }
 
         return Ok(result);

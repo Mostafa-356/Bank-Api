@@ -53,7 +53,7 @@ public class AccountController : ControllerBase
         var userId = this.GetCurrentUserIdRequired();
         // Handler throws KeyNotFoundException (→ 404) or UnauthorizedAccessException (→ 401)
         var account = await _mediator.Send(
-            new UpdateAccountCommand(id, request.AccountHolderName, userId));
+            new UpdateAccountCommand(id, request.AccountHolderName ?? string.Empty, userId));
         return this.CreateSuccessResponse("Account updated successfully", account);
     }
 

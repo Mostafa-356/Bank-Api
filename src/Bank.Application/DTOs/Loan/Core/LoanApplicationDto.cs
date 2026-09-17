@@ -1,4 +1,4 @@
-﻿using Bank.Application.DTOs.Common;
+using Bank.Application.DTOs.Common;
 using Bank.Domain.Enums;
 
 namespace Bank.Application.DTOs.Loan.Core;

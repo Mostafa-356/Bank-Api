@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Loan.Configuration;
+namespace Bank.Application.DTOs.Loan.Configuration;
 
 /// <summary>
 /// Request DTO for early payoff calculation

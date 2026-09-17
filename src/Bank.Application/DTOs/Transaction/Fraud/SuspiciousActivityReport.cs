@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Transaction.Fraud;
+namespace Bank.Application.DTOs.Transaction.Fraud;
 
 /// <summary>
 /// Report for suspicious activity

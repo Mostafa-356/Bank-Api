@@ -1,4 +1,4 @@
-﻿using Bank.Domain.Entities;
+using Bank.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Bank.Application.Services;

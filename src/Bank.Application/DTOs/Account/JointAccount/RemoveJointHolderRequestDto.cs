@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.JointAccount;
+namespace Bank.Application.DTOs.Account.JointAccount;
 
 /// <summary>
 /// Request to remove a joint holder from an account

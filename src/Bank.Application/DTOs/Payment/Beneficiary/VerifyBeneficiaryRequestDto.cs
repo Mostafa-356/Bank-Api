@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Payment.Beneficiary;
+namespace Bank.Application.DTOs.Payment.Beneficiary;
 
 /// <summary>
 /// Request for beneficiary verification

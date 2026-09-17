@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Card.Activation;
+namespace Bank.Application.DTOs.Card.Activation;
 
 /// <summary>
 /// Request for card renewal

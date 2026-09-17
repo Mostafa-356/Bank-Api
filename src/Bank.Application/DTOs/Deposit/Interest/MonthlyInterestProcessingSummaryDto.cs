@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Deposit.Interest;
+namespace Bank.Application.DTOs.Deposit.Interest;
 
 /// <summary>
 /// Monthly interest processing summary

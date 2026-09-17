@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Loan.Approval;
+namespace Bank.Application.DTOs.Loan.Approval;
 
 /// <summary>
 /// DTO for loan approval decision

@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Account.Transfer;
+namespace Bank.Application.DTOs.Account.Transfer;
 
 /// <summary>
 /// Beneficiary limits result

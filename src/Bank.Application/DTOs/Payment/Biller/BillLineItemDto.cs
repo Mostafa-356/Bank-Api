@@ -1,4 +1,4 @@
-﻿namespace Bank.Application.DTOs.Payment.Biller;
+namespace Bank.Application.DTOs.Payment.Biller;
 
 public class BillLineItemDto
 {
