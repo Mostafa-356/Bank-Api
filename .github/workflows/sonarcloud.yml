@@ -45,7 +45,7 @@ jobs:
       run: dotnet restore src/Bank.sln
 
     - name: Run SonarCloud analysis
-      if: env.SONAR_TOKEN != ''
+      if: secrets.SONAR_TOKEN != ''
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
         dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
     - name: Skip SonarCloud (token not configured)
-      if: env.SONAR_TOKEN == ''
+      if: secrets.SONAR_TOKEN == ''
       run: echo "⚠️  SONAR_TOKEN not configured — skipping SonarCloud analysis."
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
